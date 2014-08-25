@@ -3,10 +3,9 @@ __author__ = 'kemal'
 
 import json
 import sys
+from datetime import datetime
 from pymongo import MongoClient
 
-
-from datetime import datetime
 
 #####################################################
 #####################################################
@@ -73,6 +72,32 @@ def isDataFresh(dataTime):
     else:
         return False
 
+
+# ---------------------------- #
+# MAIN Function
+# ---------------------------- #
+def mainFunction(db):
+
+    # Set time to 3hours and 10mins ago
+    dateNow = datetime.now()
+    dateNow = dateNow.replace(minute=dateNow.minute-10)
+    dateNow = dateNow.replace(hour=dateNow.hour-3)
+
+    # If result contains more than one tuples then return object will be cursor
+    collection = db[collectionName]
+    cursor = collection.find({"resource_id":resourceID , "counter_name":service , "timestamp":{"$gt":dateNow} }).sort([("timestamp",-1)]).limit(1)
+    res = cursor.__getitem__(0)
+
+    # Get values from result
+    if isThresholdValuesTaken():
+        returnCode = serviceThresholdResult( res['counter_volume'] , thresholdDown , thresholdUp )
+        returnValue = "Instance="+str(resourceID)+ ", " + str(service) + "=" + str(res['counter_volume']) + ", RETURN CODE=" + str(returnCode) + " | " + str(service) + "=" + str(res['counter_volume'])
+    else:
+        returnCode = 0
+        returnValue = "Instance="+str(resourceID)+ ", " + str(service) + "=" + str(res['counter_volume']) + ", RETURN CODE=" + str(returnCode) + " | " + str(service) + "=" + str(res['counter_volume'])
+
+    return returnValue + "|" + str(returnCode)
+
 #####################################################
 #####################################################
 #####################################################
@@ -95,6 +120,8 @@ collectionName  = 'meter'
 returnValue     = ""
 resourceID      = None
 service         = None
+returnCode      = 2;
+returnValue     = "ERROR |  |" + str(returnCode);
 #thresholdDown   = None
 #thresholdUp     = None
 
@@ -108,51 +135,25 @@ try:
     try:
         resourceID  = sys.argv[1]
         service     = sys.argv[2]
-        try:
+
+        if len(sys.argv) == 5:
             thresholdDown   = float(sys.argv[3])
             thresholdUp     = float(sys.argv[4])
-        except:
-            print("Threshold values was not given")
+        else:
+            thresholdDown   = None
+            thresholdUp     = None
+
+        print(mainFunction(db))
 
     except:
-        print("DEFAULT example")
-        resourceID      = "8319b081-4f08-4730-b326-db8596ace97c"
-        service         = "cpu_util"
-        thresholdDown   = 10
-        thresholdUp     = 20
-
-
-    # Find result value of service
-    returnCode = -2;
-    # Set time to 10min ago
-    dateNow = datetime.now()
-    dateNow = dateNow.replace(minute=dateNow.minute-10)
-    dateNow = dateNow.replace(hour=dateNow.hour-3)
-
-    # If result contains more than one tuples then return object will be cursor
-    collection = db[collectionName]
-    cursor = collection.find({"resource_id":resourceID , "counter_name":service , "timestamp":{"$gt":dateNow} }).sort([("timestamp",-1)]).limit(1)
-    res = cursor.__getitem__(0)
-
-
-    if service=="cpu_util":
-        if isThresholdValuesTaken():
-            returnCode = serviceThresholdResult( res['counter_volume'] , thresholdDown , thresholdUp )
-            returnValue = "Instance="+str(resourceID)+ ", " + str(service) + "=" + str(res['counter_volume']) + ", RETURN CODE=" + str(returnCode) + " | " + str(service) + "=" + str(res['counter_volume'])
-
-    elif service=="cpu":
-        returnCode = 0
-        returnValue = "Instance="+str(resourceID)+ ", " + str(service) + "=" + str(res['counter_volume']) + ", RETURN CODE=" + str(returnCode) + " | " + str(service) + "=" + str(res['counter_volume'])
-
-    else:
-        print("Selected Service is not proper")
-
-
-    # GET RETURN VALUE from file
-    print(returnValue + "|" + str(returnCode))
+        returnCode  = 2
+        returnValue = "ERROR : Parameter cannot taken properly  |  |" + str(returnCode)
+        print(str(returnValue))
 
 except:
-    print("UNEXPECTED ERROR OCCUR")
+    returnCode  = 2
+    print(str(returnValue))
+
 
 
 

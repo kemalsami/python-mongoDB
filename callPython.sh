@@ -1,7 +1,6 @@
 #!/bin/bash
 #initialization with default values
 SERVICE='cpu_util'
-THRESHOLD='-1'
 
 #function to print the help info
 printusage()
@@ -47,7 +46,9 @@ statusInfo=$(echo $pythonResult | awk -F '|' '{print $1 "|" $2}')
 perfData=$(echo $pythonResult | awk -F '|' '{print $2}')
 returnCode=$(echo $pythonResult | awk -F '|' '{print $3}')
 
-echo "$pythonResult"
+#echo "$pythonResult"
 echo "$statusInfo"
-echo "$perfData"
-echo "$returnCode"
+#echo "$perfData"
+#echo "$returnCode"
+
+exit $returnCode
