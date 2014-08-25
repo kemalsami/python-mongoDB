@@ -80,12 +80,12 @@ def mainFunction(db):
 
     # Set time to 3hours and 10mins ago
     dateNow = datetime.now()
-    dateNow = dateNow.replace(minute=dateNow.minute-10)
+    dateNow= dateNow.replace(minute=dateNow.minute-10)
     dateNow = dateNow.replace(hour=dateNow.hour-3)
 
     # If result contains more than one tuples then return object will be cursor
     collection = db[collectionName]
-    cursor = collection.find({"resource_id":resourceID , "counter_name":service , "timestamp":{"$gt":dateNow} }).sort([("timestamp",-1)]).limit(1)
+    cursor = collection.find({"resource_id": { "$regex" : regexID} , "counter_name":service , "timestamp":{"$gt":dateNow} }).sort([("timestamp",-1)]).limit(1)
     res = cursor.__getitem__(0)
 
     # Get values from result
@@ -122,8 +122,8 @@ resourceID      = None
 service         = None
 returnCode      = 2;
 returnValue     = "ERROR |  |" + str(returnCode);
-#thresholdDown   = None
-#thresholdUp     = None
+thresholdDown   = None
+thresholdUp     = None
 
 try:
     # MongoDB connection start here
@@ -134,6 +134,7 @@ try:
 
     try:
         resourceID  = sys.argv[1]
+        regexID     = ".*"+resourceID+".*"
         service     = sys.argv[2]
 
         if len(sys.argv) == 5:
@@ -146,6 +147,12 @@ try:
         print(mainFunction(db))
 
     except:
+        """
+        resourceID  = "8319b081-4f08-4730-b326-db8596ace97c"
+        regexID     = ".*"+resourceID+".*"
+        service     = "network.incoming.bytes"
+        print(mainFunction(db))
+        """
         returnCode  = 2
         returnValue = "ERROR : Parameter cannot taken properly  |  |" + str(returnCode)
         print(str(returnValue))

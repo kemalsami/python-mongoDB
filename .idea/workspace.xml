@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c464c925-a819-4f39-9e2d-a25d785eb340" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/callPython.sh" afterPath="$PROJECT_DIR$/callPython.sh" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mongoDBhandler.py" afterPath="$PROJECT_DIR$/mongoDBhandler.py" />
     </list>
     <ignored path="python-mongoDB.iws" />
@@ -15,7 +14,7 @@
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/python-mongoDB$mongoDBhandler.coverage" NAME="mongoDBhandler Coverage Results" MODIFIED="1408967811439" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/python-mongoDB$mongoDBhandler.coverage" NAME="mongoDBhandler Coverage Results" MODIFIED="1408972305987" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -32,8 +31,8 @@
       <file leaf-file-name="mongoDBhandler.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/mongoDBhandler.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.93762994" vertical-offset="1874" max-vertical-offset="2520">
-              <caret line="155" column="0" selection-start-line="155" selection-start-column="0" selection-end-line="155" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.48856547" vertical-offset="1070" max-vertical-offset="2625">
+              <caret line="87" column="65" selection-start-line="87" selection-start-column="65" selection-end-line="87" selection-end-column="65" />
               <folding>
                 <element signature="e#40#51#0" expanded="true" />
               </folding>
@@ -434,8 +433,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/mongoDBhandler.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.93762994" vertical-offset="1874" max-vertical-offset="2520">
-          <caret line="155" column="0" selection-start-line="155" selection-start-column="0" selection-end-line="155" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.48856547" vertical-offset="1070" max-vertical-offset="2625">
+          <caret line="87" column="65" selection-start-line="87" selection-start-column="65" selection-end-line="87" selection-end-column="65" />
           <folding>
             <element signature="e#40#51#0" expanded="true" />
           </folding>
