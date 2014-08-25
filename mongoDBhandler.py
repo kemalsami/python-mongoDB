@@ -5,6 +5,9 @@ import json
 import sys
 from pymongo import MongoClient
 
+
+from datetime import datetime
+
 #####################################################
 #####################################################
 #####################################################
@@ -59,6 +62,17 @@ def serviceThresholdResult(val , th_down , th_up):
 def isThresholdValuesTaken():
     return thresholdDown!=None and thresholdUp!=None
 
+# ---------------------------- #
+# Check that (dateNow-10min) < (timestamp)
+# ---------------------------- #
+def isDataFresh(dataTime):
+    dateNow = datetime.now()
+    timeDiff = dateNow - dataTime
+    if timeDiff.seconds <= 600:
+        return True
+    else:
+        return False
+
 #####################################################
 #####################################################
 #####################################################
@@ -108,15 +122,19 @@ try:
         thresholdUp     = 20
 
 
-    # If result contains more than one tuples then return object will be cursor
-    collection = db[collectionName]
-    cursor = collection.find({"resource_id" : resourceID , "counter_name" : service}).sort([("timestamp",-1)]).limit(1)
-    for x in cursor:
-        res = x
-
-
     # Find result value of service
     returnCode = -2;
+    # Set time to 10min ago
+    dateNow = datetime.now()
+    dateNow = dateNow.replace(minute=dateNow.minute-10)
+    dateNow = dateNow.replace(hour=dateNow.hour-3)
+
+    # If result contains more than one tuples then return object will be cursor
+    collection = db[collectionName]
+    cursor = collection.find({"resource_id":resourceID , "counter_name":service , "timestamp":{"$gt":dateNow} }).sort([("timestamp",-1)]).limit(1)
+    res = cursor.__getitem__(0)
+
+
     if service=="cpu_util":
         if isThresholdValuesTaken():
             returnCode = serviceThresholdResult( res['counter_volume'] , thresholdDown , thresholdUp )
@@ -135,6 +153,7 @@ try:
 
 except:
     print("UNEXPECTED ERROR OCCUR")
+
 
 
 
