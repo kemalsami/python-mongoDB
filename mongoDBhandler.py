@@ -72,29 +72,44 @@ def isDataFresh(dataTime):
     else:
         return False
 
+# ---------------------------- #
+# That method returns EXCEPTION
+# ---------------------------- #
+def callException(ExceptionDesc):
+    returnCode  = 2
+    returnValue = "ERROR:" + str(ExceptionDesc) + " |  |" + str(returnCode)
+    print(str(returnValue))
 
 # ---------------------------- #
 # MAIN Function
 # ---------------------------- #
 def mainFunction(db):
 
-    # Set time to 3hours and 10mins ago
-    dateNow = datetime.now()
-    dateNow= dateNow.replace(minute=dateNow.minute-10)
-    dateNow = dateNow.replace(hour=dateNow.hour-3)
+    try:
+        # Set time to 3hours and 10mins ago
+        dateNow = datetime.now()
+        dateNow= dateNow.replace(minute=dateNow.minute-15)
+        dateNow = dateNow.replace(hour=dateNow.hour-3)
+    except:
+        callException("Date problem")
 
     # If result contains more than one tuples then return object will be cursor
     collection = db[collectionName]
-    cursor = collection.find({"resource_id": { "$regex" : regexID} , "counter_name":service , "timestamp":{"$gt":dateNow} }).sort([("timestamp",-1)]).limit(1)
+    cursor = collection.find({"resource_id": { "$regex" : regexID} , "counter_name":service , "timestamp":{"$gt":dateNow} }).sort([("timestamp",-1)]).limit(2)
     res = cursor.__getitem__(0)
+    resAlternative = cursor.__getitem__(1)
 
     # Get values from result
     if isThresholdValuesTaken():
         returnCode = serviceThresholdResult( res['counter_volume'] , thresholdDown , thresholdUp )
         returnValue = "Instance="+str(resourceID)+ ", " + str(service) + "=" + str(res['counter_volume']) + ", RETURN CODE=" + str(returnCode) + " | " + str(service) + "=" + str(res['counter_volume'])
     else:
+        # if service name finish ".rate" and its counter_type is cumulative then find rate of service
         returnCode = 0
-        returnValue = "Instance="+str(resourceID)+ ", " + str(service) + "=" + str(res['counter_volume']) + ", RETURN CODE=" + str(returnCode) + " | " + str(service) + "=" + str(res['counter_volume'])
+        if runRate and "cumulative" in str(res['counter_type']):
+            returnValue = "Instance="+str(resourceID)+ ", " + str(service) + ".rate=" + str(res['counter_volume']-resAlternative['counter_volume']) + ", RETURN CODE=" + str(returnCode) + " | " + str(service) + ".rate=" + str(res['counter_volume']-resAlternative['counter_volume'])
+        else:
+            returnValue = "Instance="+str(resourceID)+ ", " + str(service) + "=" + str(res['counter_volume']) + ", RETURN CODE=" + str(returnCode) + " | " + str(service) + "=" + str(res['counter_volume'])
 
     return returnValue + "|" + str(returnCode)
 
@@ -121,9 +136,10 @@ returnValue     = ""
 resourceID      = None
 service         = None
 returnCode      = 2;
-returnValue     = "ERROR |  |" + str(returnCode);
+returnValue     = "Connection Failure"
 thresholdDown   = None
 thresholdUp     = None
+runRate         = False
 
 try:
     # MongoDB connection start here
@@ -136,7 +152,12 @@ try:
         resourceID  = sys.argv[1]
         regexID     = ".*"+resourceID+".*"
         service     = sys.argv[2]
+        # if service name includes ".rate" then prepare to calculate rate of service
+        if ".rate" in service:
+            runRate = True
+            service = service[:service.index('.rate')]
 
+        # if arguments contain thresholds then take those values
         if len(sys.argv) == 5:
             thresholdDown   = float(sys.argv[3])
             thresholdUp     = float(sys.argv[4])
@@ -144,22 +165,28 @@ try:
             thresholdDown   = None
             thresholdUp     = None
 
-        print(mainFunction(db))
+        try:
+            print(mainFunction(db))
+        except:
+            callException("mainFunction error")
 
     except:
         """
         resourceID  = "8319b081-4f08-4730-b326-db8596ace97c"
         regexID     = ".*"+resourceID+".*"
-        service     = "network.incoming.bytes"
+        service     = "cpu.rate"
+        if ".rate" in service:
+            runRate = True
+            service = service[:service.index('.rate')]
+
         print(mainFunction(db))
         """
-        returnCode  = 2
-        returnValue = "ERROR : Parameter cannot taken properly  |  |" + str(returnCode)
-        print(str(returnValue))
+        callException("Parameter cannot taken properly")
+
 
 except:
-    returnCode  = 2
-    print(str(returnValue))
+    callException(returnValue)
+
 
 
 
